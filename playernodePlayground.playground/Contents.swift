@@ -1,12 +1,12 @@
 import UIKit
 import AVFoundation
-import XCPlayground
+import PlaygroundSupport
 
-guard let audioFileURL = NSBundle.mainBundle().URLForResource("snare-analog", withExtension: "wav") else {
+guard let audioFileURL = Bundle.main.url(forResource: "snare-analog", withExtension: "wav") else {
     fatalError("audio file is not in bundle.")
 }
 
-var audioFile:AVAudioFile?
+var audioFile: AVAudioFile?
 do {
     audioFile = try AVAudioFile(forReading: audioFileURL)
 } catch {
@@ -24,17 +24,17 @@ delay.lowPassCutoff = 15000
 delay.wetDryMix = 100
 
 let reverb = AVAudioUnitReverb()
-reverb.loadFactoryPreset(.Cathedral)
+reverb.loadFactoryPreset(.cathedral)
 reverb.wetDryMix = 50
 
 var timePitch = AVAudioUnitTimePitch()
 timePitch.pitch = 100 // cents
 timePitch.rate = 2
 
-engine.attachNode(player)
-engine.attachNode(delay)
-engine.attachNode(reverb)
-engine.attachNode(timePitch)
+engine.attach(player)
+engine.attach(delay)
+engine.attach(reverb)
+engine.attach(timePitch)
 
 let format = audioFile!.processingFormat
 engine.connect(player, to: delay, format: format)
@@ -45,7 +45,7 @@ engine.connect(reverb, to: engine.mainMixerNode, format: format)
 let session = AVAudioSession.sharedInstance()
 do {
     try session.setCategory(AVAudioSessionCategoryPlayback)
-    try session.overrideOutputAudioPort(.Speaker)
+    try session.overrideOutputAudioPort(.speaker)
     try session.setActive(true)
 } catch {
     fatalError("cannot create/set session \(error)")
@@ -60,7 +60,7 @@ do {
 
 
 //player.scheduleFile(audioFile!, atTime: nil, completionHandler: nil)
-player.scheduleFile(audioFile!, atTime: nil) {
+player.scheduleFile(audioFile!, at: nil) {
     print("done")
     player.rate = 0.5
     player.play()
@@ -68,8 +68,4 @@ player.scheduleFile(audioFile!, atTime: nil) {
 
 player.play()
 
-
-
-
-XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
-
+PlaygroundPage.current.needsIndefiniteExecution = true
